@@ -5,20 +5,17 @@
     <title>Velvet</title>
     <style>
 			body {
-				background : black;
+				background : transparent;
 				color      : #cccccc;
 			}
 
-			.velvet__canvas--2:first-of-type {
-				background              : url("https://alexapi.cloud/images/alexapi-wallpaper.png") no-repeat 0 0 fixed;
-				background-size         : cover;
-				-moz-background-size    : cover;
-				-webkit-background-size : cover;
-				-o-background-size      : cover;
+			.velvet__canvas--1:first-of-type {
+				z-index : 1;
+				display : none;
 			}
 
-			video {
-				filter : hue-rotate(45deg);
+			.velvet__canvas--2:first-of-type {
+				z-index : 99;
 			}
     </style>
 </head>
@@ -27,7 +24,7 @@
     <figure>
         <video class="velvet__video" src="" controls>Your browser doesn't support video tag.</video>
         <canvas class="velvet__canvas--1" width="1280" height="720"></canvas>
-        <canvas class="velvet__canvas--2" width="320" height="180"></canvas>
+        <canvas class="velvet__canvas--2" width="1280" height="720"></canvas>
         <figcaption>
             <button class="velvet__video--play">Play Video</button>
         </figcaption>
@@ -35,19 +32,52 @@
     <p class="velvet__output"></p>
 </article>
 <script>
+
+    /**
+     * @see https://en.wikipedia.org/wiki/SRGB
+     * @param r
+     * @param g
+     * @param b
+     * @returns {number}
+     */
+    function grayscaleFilter (r, g, b) {
+        let Clinear = (0.2126 * (r / 255.0)) + (0.7152 * (g / 255.0)) + (0.0722 * (b / 255.0));
+        if (Clinear <= 0.0031308) {
+            return Math.floor((12.92 * Clinear) * 255);
+        }
+        if (Clinear > 0.0031308) {
+            return Math.floor((1.055 * Math.pow(Clinear, (1 / 2.4)) - 0.055) * 255);
+        }
+        return 255;
+    }
+
+    /**
+     *
+     * @returns {(function(*, *, *): void)|*}
+     */
     function processWithVelvet () {
         return function (currentVideo, ctx1, ctx2) {
 
             ctx1.drawImage(currentVideo, 0, 0, currentVideo.videoWidth, currentVideo.videoHeight);
+            // 32bits image raw data
             let frame = ctx1.getImageData(0, 0, currentVideo.videoWidth, currentVideo.videoHeight);
-            let l = frame.data.length / 4;
+            // How many pixels in the current image 4 bytes per pixel (r,g,b,a)
+            let l = Math.floor(frame.data.length / 4);
+            let effect = Math.floor(l / 64);
 
             for (let i = 0; i < l; i++) {
-                let r = frame.data[i * 4 + 0];
-                let g = frame.data[i * 4 + 1];
-                let b = frame.data[i * 4 + 2];
-                if (g > 100 && r > 100 && b < 43)
-                    frame.data[i * 4 + 3] = 0;
+                let pixelStart = (i * 4);
+                let r = frame.data[pixelStart];
+                let g = frame.data[pixelStart + 1];
+                let b = frame.data[pixelStart + 2];
+                let a = frame.data[pixelStart + 3];
+                let grayscale = grayscaleFilter(r, g, b);
+
+                frame.data[pixelStart] = grayscale;
+                frame.data[pixelStart + 1] = grayscale;
+                frame.data[pixelStart + 2] = grayscale;
+                a = 255;
+
             }
             ctx2.putImageData(frame, 0, 0);
             requestAnimationFrame(function () {
@@ -56,6 +86,9 @@
         };
     }
 
+    /**
+     *
+     */
     function activateVideo () {
 
         // Prefer camera resolution nearest to 1280x720.
@@ -77,8 +110,8 @@
                         velvetCanvas1.width = video.videoWidth;
                         velvetCanvas1.height = video.videoHeight;
 
-                        velvetCanvas2.width = video.videoWidth / 4;
-                        velvetCanvas2.height = video.videoHeight / 4;
+                        velvetCanvas2.width = video.videoWidth;
+                        velvetCanvas2.height = video.videoHeight;
                     };
 
                     video.onloadedmetadata = function () {
@@ -97,6 +130,9 @@
             ); // always check for errors at the end.
     }
 
+    /**
+     *
+     */
     window.addEventListener("DOMContentLoaded", function () {
         document.querySelector(".velvet__video--play").addEventListener("click", function (eventClickPlayVideo) {
             eventClickPlayVideo.preventDefault();
