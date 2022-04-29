@@ -13,6 +13,8 @@ Starting a side project called Velvet. today as a challenge to force me to learn
 I'll share my progress as it is a side project to learn, and it might be useful for everyone interested.
 https://alexandreelise.github.io/velvet
 
+## CREDITS
+This code has been inspired by https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Manipulating_video_using_canvas
 
 ## CONTRIBUTORS
 Contributors are welcomed to jump in and help improve this project. Any constructive feedback is welcomed.
@@ -20,6 +22,6 @@ Contributors are welcomed to jump in and help improve this project. Any construc
 --------------------------------------------
 ## INFOS
 
-> English: [Click here to get in touch](https://github.com/mralexandrelise/mralexandrelise/blob/master/community.md "Get in touch")
+> English : [Click here to get in touch](https://github.com/mralexandrelise/mralexandrelise/blob/master/community.md "Get in touch")
 
-> Français: [Cliquez ici pour me contacter](https://github.com/mralexandrelise/mralexandrelise/blob/master/community.md "Me contacter")
+> Français : [Cliquez ici pour me contacter](https://github.com/mralexandrelise/mralexandrelise/blob/master/community.md "Me contacter")

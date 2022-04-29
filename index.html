@@ -1,149 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
+<!--
+/**
+* @package index.html
+* @author Alexandre ELISÉ <contact@alexandree.io>
+* @copyright (c) 2022 - present. Alexandre ELISÉ. All rights reserved.
+* @license MIT
+* @link https://alexandree.io
+*/
+-->
 <head>
     <meta charset="UTF-8">
-    <title>Velvet</title>
-    <style>
-			body {
-				background : transparent;
-				color      : #cccccc;
-			}
-
-			.velvet__canvas--1:first-of-type {
-				z-index : 1;
-				display : none;
-			}
-
-			.velvet__canvas--2:first-of-type {
-				z-index : 99;
-			}
-    </style>
+    <title>Velvet: Realtime Video Processing In Pure Javascript</title>
+    <meta name="description"
+          content="Velvet: Realtime Video Processing In Pure Javascript as an experiment to learn javascript more seriously. Initiated by Mr Alexandre ELISÉ, inspired by MDN article https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Manipulating_video_using_canvas">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script src="assets/js/core/index.js"></script>
 </head>
 <body>
+<h1>Velvet: Realtime Video Processing In Pure Javascript</h1>
+<blockquote>
+    <p>As an experiment to learn javascript more seriously. <br>
+        Initiated by Mr Alexandre ELISÉ on April 26th 2022, inspired by <a
+                href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Manipulating_video_using_canvas"
+                target="_blank" rel="noopener dofollow">this</a> MDN article.
+        <br>
+        Simply put, it asks for access to your webcam using it as a realtime video media stream <br>and executes
+        multiple
+        <em>processors</em> to do some processing on raw video data.
+        <br>
+        Then shows the result in nearly realtime below the original video. <br>
+        Of course to meet the "realtime" expectation, the total time of computation of all <em>processors</em> <br>
+        should be less than 16ms for a 60fps video otherwise there might be some lag.
+    </p>
+</blockquote>
+<button class="velvet__video--play">Play Video</button>
 <article class="velvet">
     <figure>
-        <video class="velvet__video" src="" controls>Your browser doesn't support video tag.</video>
-        <canvas class="velvet__canvas--1" width="1280" height="720"></canvas>
-        <canvas class="velvet__canvas--2" width="1280" height="720"></canvas>
+        <video class="velvet__video" src="" poster="assets/images/alexandree-velvet-js-wallpaper.png" controls
+               width="1280"
+               height="720">Your browser doesn't support video tag.
+        </video>
+        <canvas class="velvet__canvas--1" width="1280" height="720">Your browser doesn't support canvas tag.</canvas>
+        <canvas class="velvet__canvas--2" width="1280" height="720">Your browser doesn't support canvas tag.</canvas>
         <figcaption>
-            <button class="velvet__video--play">Play Video</button>
+            <p class="velvet__output"></p>
         </figcaption>
     </figure>
-    <p class="velvet__output"></p>
 </article>
-<script>
-
-    /**
-     * @see https://en.wikipedia.org/wiki/SRGB
-     * @param r
-     * @param g
-     * @param b
-     * @returns {number}
-     */
-    function grayscaleFilter (r, g, b) {
-        let Clinear = (0.2126 * (r / 255.0)) + (0.7152 * (g / 255.0)) + (0.0722 * (b / 255.0));
-        if (Clinear <= 0.0031308) {
-            return Math.floor((12.92 * Clinear) * 255);
-        }
-        if (Clinear > 0.0031308) {
-            return Math.floor((1.055 * Math.pow(Clinear, (1 / 2.4)) - 0.055) * 255);
-        }
-        return 255;
-    }
-
-    /**
-     *
-     * @returns {(function(*, *, *): void)|*}
-     */
-    function processWithVelvet () {
-        return function (currentVideo, ctx1, ctx2) {
-
-            ctx1.drawImage(currentVideo, 0, 0, currentVideo.videoWidth, currentVideo.videoHeight);
-            // 32bits image raw data
-            let frame = ctx1.getImageData(0, 0, currentVideo.videoWidth, currentVideo.videoHeight);
-            // How many pixels in the current image 4 bytes per pixel (r,g,b,a)
-            let l = Math.floor(frame.data.length / 4);
-            let effect = Math.floor(l / 64);
-
-            for (let i = 0; i < l; i++) {
-                let pixelStart = (i * 4);
-                let r = frame.data[pixelStart];
-                let g = frame.data[pixelStart + 1];
-                let b = frame.data[pixelStart + 2];
-                let a = frame.data[pixelStart + 3];
-                let grayscale = grayscaleFilter(r, g, b);
-
-                frame.data[pixelStart] = grayscale;
-                frame.data[pixelStart + 1] = grayscale;
-                frame.data[pixelStart + 2] = grayscale;
-                a = 255;
-
-            }
-            ctx2.putImageData(frame, 0, 0);
-            requestAnimationFrame(function () {
-                return processWithVelvet()(currentVideo, ctx1, ctx2);
-            });
-        };
-    }
-
-    /**
-     *
-     */
-    function activateVideo () {
-
-        // Prefer camera resolution nearest to 1280x720.
-        const constraints = { audio: false, video: { width: 1280, height: 720 } };
-        navigator.mediaDevices.getUserMedia(constraints)
-            .then(
-                function (mediaStream) {
-                    const video = document.querySelector(".velvet__video");
-                    const velvetCanvas1 = document.querySelector(".velvet__canvas--1");
-                    const velvetCanvas2 = document.querySelector(".velvet__canvas--2");
-                    const output = document.querySelector(".velvet__output");
-                    let ctx1 = velvetCanvas1.getContext("2d");
-                    let ctx2 = velvetCanvas2.getContext("2d");
-
-                    output.innerText = "Please wait.";
-                    video.srcObject = mediaStream;
-
-                    video.onloadeddata = function () {
-                        velvetCanvas1.width = video.videoWidth;
-                        velvetCanvas1.height = video.videoHeight;
-
-                        velvetCanvas2.width = video.videoWidth;
-                        velvetCanvas2.height = video.videoHeight;
-                    };
-
-                    video.onloadedmetadata = function () {
-                        video.play();
-                    };
-
-                    video.onplay = function () {
-                        requestAnimationFrame(function () {
-                            return processWithVelvet()(video, ctx1, ctx2);
-                        });
-                    };
-                })
-            .catch((err) => {
-                    throw err;
-                }
-            ); // always check for errors at the end.
-    }
-
-    /**
-     *
-     */
-    window.addEventListener("DOMContentLoaded", function () {
-        document.querySelector(".velvet__video--play").addEventListener("click", function (eventClickPlayVideo) {
-            eventClickPlayVideo.preventDefault();
-            eventClickPlayVideo.stopPropagation();
-            try {
-                activateVideo();
-            } catch (exception) {
-                console.error(exception);
-            }
-        }, false);
-    }, false);
-</script>
+<script src="assets/js/processors/index.js"></script>
+<script src="assets/js/processors/grayscale.js"></script>
+<script src="assets/js/index.js"></script>
 </body>
 </html>

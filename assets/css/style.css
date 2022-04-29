@@ -1,0 +1,58 @@
+/**
+* @package style.css
+* @author Alexandre ELISÉ <contact@alexandree.io>
+* @copyright (c) 2022 - present. Alexandre ELISÉ. All rights reserved.
+* @license MIT
+* @link https://alexandree.io
+*/
+:root {
+	--velvet-color-primary : dodgerblue;
+	--velvet-color-dark    : midnightblue;
+	--velvet-color-light   : aliceblue;
+}
+
+*, *::before, *::after {
+	box-sizing : border-box;
+}
+
+body {
+	background  : transparent;
+	color       : var(--velvet-color-dark);
+	font-size   : 16px;
+	font-family : Helvetica, sans-serif;
+	text-align  : center;
+}
+
+blockquote {
+	display      : block;
+	margin       : 0 auto;
+	border-left  : 1rem solid var(--velvet-color-light);
+	padding-left : 0.5rem;
+	line-height  : 1.5;
+	width        : 48rem;
+	height       : auto;
+}
+
+blockquote p {
+	text-align : start;
+}
+
+.velvet__canvas--1:first-of-type {
+	z-index : 1;
+	display : none;
+}
+
+.velvet__canvas--2:first-of-type {
+	z-index : 99;
+	border  : 0.5rem dashed var(--velvet-color-dark);
+}
+
+.velvet__video--play {
+	border-radius  : 0.5rem;
+	padding        : 1rem;
+	background     : var(--velvet-color-primary);
+	color          : var(--velvet-color-light);
+	width          : 10rem;
+	height         : 5rem;
+	text-transform : uppercase;
+}
