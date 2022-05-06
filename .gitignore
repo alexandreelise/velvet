@@ -1,0 +1,12 @@
+.idea/
+!.gitignore
+!/README.md
+!/LICENSE
+!/index.html
+!/assets/
+.DS_Store
+*.log
+*.bak
+*.tmp
+tmp/
+logs/
