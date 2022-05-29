@@ -6,43 +6,73 @@
 * @link https://alexandree.io
 */
 :root {
-	--velvet-color-primary : dodgerblue;
-	--velvet-color-dark    : midnightblue;
-	--velvet-color-light   : aliceblue;
+	--velvet-color-primary   : dodgerblue;
+	--velvet-color-dark      : midnightblue;
+	--velvet-color-light     : aliceblue;
+	--velvet-video-width     : 480px;
+	--velvet-video-max-width : 96vmin;
 }
 
 *, *::before, *::after {
 	box-sizing : border-box;
 }
 
-body {
+html, body {
 	background  : transparent;
 	color       : var(--velvet-color-dark);
 	font-size   : 16px;
 	font-family : Helvetica, sans-serif;
 	text-align  : center;
+	margin      : 0;
+	padding     : 0;
 }
 
-blockquote {
-	display      : block;
+.velvet__app--container {
+	display           : grid;
+	justify-items     : center;
+	align-items       : center;
+	grid-auto-columns : 1fr;
+	grid-auto-rows    : auto;
+}
+
+.velvet__app--title {
+	min-font-size : 1rem;
+	margin        : .25rem;
+}
+
+.velvet__app--description {
 	margin       : 0 auto;
 	border-left  : 1rem solid var(--velvet-color-light);
 	padding-left : 0.5rem;
-	line-height  : 1.5;
-	width        : 48rem;
-	height       : auto;
+	line-height  : 2;
+	word-break   : break-all;
 }
 
-blockquote p {
+.velvet__app--description p {
 	text-align : start;
 }
 
-.velvet__canvas--1:first-of-type {
+.velvet__video--container {
+	display               : grid;
+	grid-template-columns : 1fr;
+	grid-template-rows    : auto;
+	justify-content       : center;
+	align-items           : center;
+}
+
+.velvet__video--constraints {
+	width      : var(--velvet-video-width);
+	max-width  : var(--velvet-video-max-width);
+	height     : calc(var(--velvet-video-width) * (9 / 16));
+	max-height : calc(var(--velvet-video-max-width) * (9 / 16));
+}
+
+.velvet__video--constraints.velvet__canvas--1:first-of-type {
 	z-index : 1;
 	display : none;
 }
 
-.velvet__canvas--2:first-of-type {
+.velvet__video--constraints.velvet__canvas--2:first-of-type {
 	z-index : 99;
 	border  : 0.5rem dashed var(--velvet-color-dark);
 }
@@ -55,4 +85,19 @@ blockquote p {
 	width          : 10rem;
 	height         : 5rem;
 	text-transform : uppercase;
+}
+
+.velvet__video--streamer option {
+	font-size   : 1.5rem;
+	line-height : 2;
+	height      : 5rem;
+	border      : 1px solid var(--velvet-color-primary);
+}
+
+:valid {
+	border : 1px solid forestgreen;
+}
+
+:invalid {
+	border : 1px dashed darkred;
 }

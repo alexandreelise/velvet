@@ -22,6 +22,33 @@
     const PROCESSOR_MAX_COUNT = 10;
     
     /**
+     * Media Source Constraints
+     * @type {{audio: boolean, video: {width: {min: number, ideal: number, max: number}, height: {min: number, ideal: number, max: number}}, preferCurrentTab: boolean}}
+     */
+    const constraints = {
+        audio: false,
+        preferCurrentTab: true,
+        video: {
+            width: {
+                min: 480,
+                ideal: 1920,
+                max: 2560
+            },
+            height: {
+                min: 270,
+                ideal: 1080,
+                max: 1440
+            }
+        }
+    };
+    
+    /**
+     * Video is playing flag
+     * @type {boolean}
+     */
+    let IS_PLAYING = false;
+    
+    /**
      * List of processors to load to do realtime video processing
      * The order might be important. Hence, the use of an array for that purpose.
      * @type {*[]}
@@ -100,14 +127,20 @@
     /**
      * Activate video stream from webcam
      */
-    function activateVideo () {
+    function activateVideo (chosenDeviceId) {
         // Global flag to immediately disable velvet if necessary
         if (!CORE.IS_ENABLED) {
             throw new Error("Velvet is disabled. Cannot continue.");
         }
-        // Prefer camera resolution nearest to 1280x720.
-        const constraints = { audio: false, video: { width: 1280, height: 720 } };
-        navigator.mediaDevices.getUserMedia(constraints)
+        
+        let updatedConstraints = chosenDeviceId ? {
+            ...constraints,
+            deviceId: {
+                exact: chosenDeviceId
+            }
+        } : constraints;
+        
+        myGlobal.navigator.mediaDevices.getUserMedia(updatedConstraints)
             .then(
                 function (mediaStream) {
                     const video = CORE.elements.original;
@@ -118,6 +151,11 @@
                     
                     if (!(mediaStream instanceof MediaStream)) {
                         throw new Error("Unfortunately this is not a recognized MediaStream. Cannot continue.");
+                    }
+                    
+                    if (IS_PLAYING) {
+                        console.warn("Video seems to be already playing.");
+                        return;
                     }
                     
                     // Get active processors
@@ -138,6 +176,7 @@
                     };
                     
                     video.onplay = function () {
+                        IS_PLAYING = true;
                         requestAnimationFrame(function () {
                             return processWithVelvet()(video, ctx1, ctx2, processors);
                         });
@@ -248,22 +287,41 @@
     
     // Initial kick-off of the app
     CORE.init = function init () {
-        myGlobal.addEventListener("DOMContentLoaded", function () {
+    
+        myGlobal.addEventListener("DOMContentLoaded", function contentLoadedHandler () {
+        
             // HTML elements used in this app
             CORE.elements = {
-                original: document.querySelector(".velvet__video"),
-                reader: document.querySelector(".velvet__canvas--1"),
-                writer: document.querySelector(".velvet__canvas--2"),
+                original: document.querySelector(".velvet__video.velvet__video--constraints"),
+                reader: document.querySelector(".velvet__canvas--1.velvet__video--constraints"),
+                writer: document.querySelector(".velvet__canvas--2.velvet__video--constraints"),
+                streamer: document.querySelector(".velvet__video--streamer"),
                 play: document.querySelector(".velvet__video--play"),
-                output: document.querySelector(".velvet__output")
+                output: document.querySelector(".velvet__output"),
+                cap: document.querySelector(".velvet__capabilities")
             };
+        
+            const output = CORE.elements.output;
+            output.style.color = "dodgerblue";
+            try {
+                if (myGlobal.navigator.mediaDevices === undefined) {
+                    throw new Error("mediaDevices() doesn't seem to be available on your browser.");
+                }
             
-            CORE.elements.play.addEventListener("click", function (eventClickPlayVideo) {
-                eventClickPlayVideo.preventDefault();
-                eventClickPlayVideo.stopPropagation();
-                const output = CORE.elements.output;
-                output.style.color = "dodgerblue";
-                try {
+                /**
+                 * @see https://www.digitalocean.com/community/tutorials/front-and-rear-camera-access-with-javascripts-getusermedia
+                 * @returns {Promise<void>}
+                 */
+                const getCameraSelection = async () => {
+                    const devices = await myGlobal.navigator.mediaDevices.enumerateDevices();
+                    const videoDevices = devices.filter(device => device.kind === "videoinput");
+                    const options = videoDevices.map(videoDevice => {
+                        return `<option value="${videoDevice.deviceId}">${videoDevice.label}</option>`;
+                    });
+                    CORE.elements.streamer.innerHTML = options.join("");
+                };
+            
+                const mediaSourceHandler = () => {
                     // Global flag to immediately disable velvet if necessary
                     if (!CORE.IS_ENABLED) {
                         output.innerText = "Velvet is disabled. Cannot continue.";
@@ -272,20 +330,27 @@
                         return;
                     }
                     CORE.loadProcessor("grayscale");
-                    activateVideo();
-                } catch (exception) {
-                    output.innerText = exception.message;
-                    output.style.color = "red";
-                    myGlobal.console.error(exception);
-                    stopStreamedVideo(CORE.elements.original);
-                }
-            }, false);
+                    activateVideo(CORE.elements.streamer.value);
+                };
             
-            // Should stop video when out of focus to prevent it running continuously for no valid reason
-            myGlobal.addEventListener("visibilitychange", stopVideoProcessingWhenOutOfFocus, false);
+                // Show camera selection right away
+                getCameraSelection();
             
+                CORE.elements.streamer.addEventListener("change", mediaSourceHandler, false);
+            
+                CORE.elements.play.addEventListener("click", mediaSourceHandler, false);
+            
+                // Should stop video when out of focus to prevent it running continuously for no valid reason
+                myGlobal.addEventListener("visibilitychange", stopVideoProcessingWhenOutOfFocus, false);
+            
+            } catch (exception) {
+                output.innerText = exception.message;
+                output.style.color = "red";
+                myGlobal.console.error(exception);
+                stopStreamedVideo(CORE.elements.original);
+            }
         }, false);
-        
-        return CORE;
     };
+    
+    return CORE;
 }(window));

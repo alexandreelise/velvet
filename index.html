@@ -16,42 +16,53 @@
           content="Velvet: Realtime Video Processing In Pure Javascript as an experiment to learn javascript more seriously. Initiated by Mr Alexandre ELISÉ, inspired by MDN article https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Manipulating_video_using_canvas">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="assets/css/style.css">
-    <script src="assets/js/core/index.js"></script>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="/assets/js/core/index.js"></script>
 </head>
 <body>
-<h1>Velvet: Realtime Video Processing In Pure Javascript</h1>
-<blockquote>
-    <p>As an experiment to learn javascript more seriously. <br>
-        Initiated by Mr Alexandre ELISÉ on April 26th 2022, inspired by <a
-                href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Manipulating_video_using_canvas"
-                target="_blank" rel="noopener dofollow">this</a> MDN article.
-        <br>
-        Simply put, it asks for access to your webcam using it as a realtime video media stream <br>and executes
-        multiple
-        <em>processors</em> to do some processing on raw video data.
-        <br>
-        Then shows the result in nearly realtime below the original video. <br>
-        Of course to meet the "realtime" expectation, the total time of computation of all <em>processors</em> <br>
-        should be less than 16ms for a 60fps video otherwise there might be some lag.
-    </p>
-</blockquote>
-<button class="velvet__video--play">Play Video</button>
-<article class="velvet">
-    <figure>
-        <video class="velvet__video" src="" poster="assets/images/alexandree-velvet-js-wallpaper.png" controls
-               width="1280"
-               height="720">Your browser doesn't support video tag.
-        </video>
-        <canvas class="velvet__canvas--1" width="1280" height="720">Your browser doesn't support canvas tag.</canvas>
-        <canvas class="velvet__canvas--2" width="1280" height="720">Your browser doesn't support canvas tag.</canvas>
-        <figcaption>
-            <p class="velvet__output"></p>
-        </figcaption>
-    </figure>
-</article>
-<script src="assets/js/processors/index.js"></script>
-<script src="assets/js/processors/grayscale.js"></script>
-<script src="assets/js/index.js"></script>
+<section class="velvet__app--container">
+    <h1 class="velvet__app--title">Velvet: Realtime Video Processing In Pure Javascript</h1>
+    <blockquote class="velvet__app--description">
+        <p>As an experiment to learn javascript more seriously. <br>
+            Initiated by Mr Alexandre ELISÉ on April 26th 2022, inspired by <a
+                    href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Manipulating_video_using_canvas"
+                    target="_blank" rel="noopener dofollow">this</a> MDN article.
+            <br>
+            Simply put, it asks for access to your webcam using it as a realtime video media stream <br>and executes
+            multiple
+            <em>processors</em> to do some processing on raw video data.
+            <br>
+            Then shows the result in nearly realtime below the original video. <br>
+            Of course to meet the "realtime" expectation, the total time of computation of all <em>processors</em> <br>
+            should be less than 16ms for a 60fps video otherwise there might be some lag.
+        </p>
+    </blockquote>
+    <p>Choose your video source:<br>
+        <select class="velvet__video--streamer" name="streamer" aria-label="Choose your video source">
+            <option value="">Choose your video source</option>
+        </select></p>
+    <button class="velvet__video--play" aria-label="Play Video Source">Play Video</button>
+    <article class="velvet">
+        <figure class="velvet__video--container">
+            <figcaption>
+                <p class="velvet__output"></p>
+            </figcaption>
+            <video class="velvet__video velvet__video--constraints" src="" width="480" height="270"
+                   poster="/assets/images/alexandree-velvet-js-wallpaper.png" controls>Your browser doesn't support
+                video
+                tag.
+            </video>
+            <canvas class="velvet__canvas--1 velvet__video--constraints" width="480" height="270">Your browser doesn't
+                support canvas tag.
+            </canvas>
+            <canvas class="velvet__canvas--2 velvet__video--constraints" width="480" height="270">Your browser doesn't
+                support canvas tag.
+            </canvas>
+        </figure>
+    </article>
+    <script src="/assets/js/processors/index.js"></script>
+    <script src="/assets/js/processors/grayscale.js"></script>
+    <script src="/assets/js/index.js"></script>
+</section>
 </body>
 </html>
