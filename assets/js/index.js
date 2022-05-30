@@ -20,6 +20,9 @@
         CORE.elements.output.innerText = exception.message;
         CORE.elements.output.style.color = "red";
         console.error(exception);
+        CORE.getProcessors().forEach((currentProcessor) => {
+           CORE.unloadProcessor(currentProcessor);
+        });
         CORE.stop(CORE.elements.original);
     }
 }(window.VELVET || {}));

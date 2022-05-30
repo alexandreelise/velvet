@@ -133,12 +133,12 @@
             throw new Error("Velvet is disabled. Cannot continue.");
         }
         
-        let updatedConstraints = chosenDeviceId ? {
+        let updatedConstraints = {
             ...constraints,
             deviceId: {
                 exact: chosenDeviceId
             }
-        } : constraints;
+        };
         
         myGlobal.navigator.mediaDevices.getUserMedia(updatedConstraints)
             .then(
@@ -329,7 +329,8 @@
                         myGlobal.console.error("Velvet is disabled. Cannot continue.");
                         return;
                     }
-                    CORE.loadProcessor("grayscale");
+                    //CORE.loadProcessor("grayscale");
+                    CORE.loadProcessor("modulus");
                     activateVideo(CORE.elements.streamer.value);
                 };
             
