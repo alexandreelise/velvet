@@ -19,6 +19,11 @@
         if (!CORE.IS_ENABLED) {
             throw new Error("Velvet is disabled. Cannot continue.");
         }
+        let x = ((pixel.red / 255 + pixel.green / 255 + pixel.blue / 255) / 3);
+        pixel.red = (x * pixel.start) % 256;
+        pixel.green = (x * pixel.start) % 256;
+        pixel.blue = (x * pixel.start) % 256;
+        pixel.alpha = 255;
         return pixel;
     }
     
@@ -31,14 +36,7 @@
         if (!CORE.IS_ENABLED) {
             throw new Error("Velvet is disabled. Cannot continue.");
         }
-        return {
-            count: pixel.count,
-            start: (pixel.start%256),
-            red: 0,
-            green: 0,
-            blue: 0,
-            alpha: 0
-        };
+        return formula(pixel);
     }
     
     // Public api
