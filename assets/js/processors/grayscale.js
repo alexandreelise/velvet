@@ -41,14 +41,11 @@
             throw new Error("Velvet is disabled. Cannot continue.");
         }
         let grayscale = formula(pixel);
-        return {
-            count: pixel.count,
-            start: pixel.start,
-            red: grayscale,
-            green: grayscale,
-            blue: grayscale,
-            alpha: 255
-        };
+        pixel.red = grayscale;
+        pixel.green = grayscale;
+        pixel.blue = grayscale;
+        pixel.alpha = 255;
+        return pixel;
     }
     
     // Public api
