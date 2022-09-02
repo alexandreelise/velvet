@@ -56,6 +56,12 @@
     let processors = [];
     
     /**
+     * List of "active" processors allows us to intersect with the list of processors
+     * @type {*[]}
+     */
+    let activeProcessors = [];
+    
+    /**
      * Variable holding the whole app root "namespace"
      * @type {*|{}}
      */
@@ -227,7 +233,7 @@
      * @returns {*[]}
      */
     CORE.getProcessors = function getProcessors () {
-        return processors;
+        return activeProcessors;
     };
     
     /**
@@ -282,6 +288,60 @@
         return processors;
     };
     
+    
+    /**
+     * Add realtime video processor to activeProcessors array
+     * Each processor will be executed in array order
+     * //TODO: load more than one processor at once
+     * //NOTE: there might be a better way to handle this rather than duplicating code but for now leave it as is.
+     * @param value
+     * @returns {*[]}
+     */
+    CORE.enableProcessor = function enableProcessor (value) {
+        // Global flag to immediately disable velvet if necessary
+        if (!CORE.IS_ENABLED) {
+            throw new Error("Velvet is disabled. Cannot continue.");
+        }
+        
+        // If processor array is empty cannot remove so throw Underflow Exception
+        if (activeProcessors.length > PROCESSOR_MAX_COUNT) {
+            throw new Error(`Overflow Exception: Cannot add more than ${PROCESSOR_MAX_COUNT} processors for now.`);
+        }
+        
+        // If processor already exists stop here
+        if (activeProcessors.indexOf(value) !== -1) {
+            throw new Error(`${value} processor already exists.`);
+        }
+        activeProcessors.push(value);
+        myGlobal.console.info(`${value} processor enabled.`);
+        return activeProcessors;
+    };
+    
+    /**
+     * Add realtime video processor to processors array
+     * Each processor will be executed in array order
+     * //TODO: disable more than one processor at once
+     * //NOTE: there might be a better way to handle this rather than duplicating code but for now leave it as is.
+     * @param value
+     * @returns {*[]}
+     */
+    CORE.disableProcessor = function disableProcessor (value) {
+        // If activeProcessor array is empty cannot remove so throw Underflow Exception
+        if (!activeProcessors.length) {
+            throw new Error("Underflow Exception: Cannot remove item from empty array. No active processor at the moment.");
+        }
+        
+        // If processor does not exist stop here
+        let index = activeProcessors.indexOf(value);
+        if (index === -1) {
+            throw new Error(`${value} processor does not exists yet.`);
+        }
+        activeProcessors.splice(index, 1);
+        myGlobal.console.info(`${value} processor enabled.`);
+        return activeProcessors;
+    };
+    
+    
     // Stop streaming video
     CORE.stop = stopStreamedVideo;
     
@@ -329,8 +389,7 @@
                         myGlobal.console.error("Velvet is disabled. Cannot continue.");
                         return;
                     }
-                    //CORE.loadProcessor("grayscale");
-                    CORE.loadProcessor("modulus");
+                    CORE.enableProcessor("grayscale");
                     activateVideo(CORE.elements.streamer.value);
                 };
             

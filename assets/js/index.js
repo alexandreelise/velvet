@@ -15,12 +15,19 @@
             CORE.elements.output.style.color = "red";
             return;
         }
+        CORE.getProcessors().forEach((currentProcessor) => {
+            CORE.disableProcessor(currentProcessor);
+            CORE.unloadProcessor(currentProcessor);
+        });
+        CORE.loadProcessor("grayscale");
+        CORE.loadProcessor("modulus");
         CORE.init();
     } catch (exception) {
         CORE.elements.output.innerText = exception.message;
         CORE.elements.output.style.color = "red";
         console.error(exception);
         CORE.getProcessors().forEach((currentProcessor) => {
+           CORE.disableProcessor(currentProcessor);
            CORE.unloadProcessor(currentProcessor);
         });
         CORE.stop(CORE.elements.original);
