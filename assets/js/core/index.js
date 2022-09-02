@@ -125,7 +125,7 @@
             }
             ctx2.putImageData(frame, 0, 0);
             requestAnimationFrame(function () {
-                return processWithVelvet()(currentVideo, ctx1, ctx2, processors);
+                return processWithVelvet()(currentVideo, ctx1, ctx2, CORE.getProcessors());
             });
         };
     }
@@ -337,7 +337,7 @@
             throw new Error(`${value} processor does not exists yet.`);
         }
         activeProcessors.splice(index, 1);
-        myGlobal.console.info(`${value} processor enabled.`);
+        myGlobal.console.info(`${value} processor disabled.`);
         return activeProcessors;
     };
     
